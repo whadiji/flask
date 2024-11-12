@@ -1,0 +1,46 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+
+# Initialisation de l'application Flask
+app = Flask(__name__)
+
+# Configuration de la base de données SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///team_task_manager.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialisation de SQLAlchemy
+db = SQLAlchemy(app)
+
+# Activer CORS pour permettre les requêtes depuis le front-end Angular
+CORS(app)
+
+# Modèles de données (exemples)
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+
+class Member(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    priority = db.Column(db.String(10))
+    status = db.Column(db.String(10), default="En cours")
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'))
+
+# Créer les tables dans la base de données
+with app.app_context():
+    db.create_all()
+
+# Exemple de route Flask
+@app.route('/')
+def index():
+    return "Application Flask est prête !"
+
+if __name__ == '__main__':
+    app.run(debug=True)
